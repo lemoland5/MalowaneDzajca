@@ -66,19 +66,23 @@ class Game{
       entity.draw(this.ctx);
     });
 
-    this.ctx.drawImage(document.getElementById("buniimg"),0,100,50,50);
   }
 }
 
 let game = new Game()
 
-  setInterval(()=>{
-    game.entities[0].moveX(1);
+document.addEventListener("keydown", (e)=>{
+  if(e.key=="d" || e.key=="D"){
+      game.entities[0].moveX(10);
+      // console.log("keyd")
+  }
+  if(e.key=="a" || e.key=="A"){
+      // console.log("keya")
+      game.entities[0].moveX(-10);
+  }
+})
+
+  setInterval(()=>{;
     game.render()
   },TARGET_FRAMETIME_MILISECONDS);
 
-game.render();
-
-game.entities[0].moveX(30);
-
-game.render();
