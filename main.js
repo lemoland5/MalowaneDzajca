@@ -34,6 +34,26 @@ class Player{
   }
 
   draw(ctx){
+    ctx.drawImage(this.sprite, this.position.x, game.canvas.height-this.height, this.width, this.height);
+  }
+}
+
+class Jajco{
+  constructor(x, y, width, height){
+    this.position = new Point(x, 0);
+
+    this.width = width;
+    this.height = height;
+
+    this.spriteId = "buniimg";
+    this.sprite = document.getElementById(this.spriteId);
+  }
+
+  moveY(y){
+    this.position.y += y;
+  }
+
+  draw(ctx){
     ctx.drawImage(this.sprite, this.position.x, this.position.y, this.width, this.height);
   }
 }
@@ -46,6 +66,7 @@ class Game{
 
     this.entities = new Array();
     this.entities.push(new Player(1, 1, 50, 50));
+    this.jajca = new Array();
   }
 
   renderClear(){
@@ -56,14 +77,11 @@ class Game{
   render(){
     this.renderClear();
 
-    console.log(this.entities.length);
-
     this.entities.forEach(entity => {
-      // console.log(entity.x);
-      // console.log(entity.y);
-      // console.log(entity.width);
-      // console.log(entity.height);
       entity.draw(this.ctx);
+      this.jajca.forEach(jajca =>{
+        jajca.draw(this.ctx)
+      })
     });
 
   }
@@ -82,7 +100,24 @@ document.addEventListener("keydown", (e)=>{
   }
 })
 
-  setInterval(()=>{;
+setInterval(()=>{
+  game.jajca.push(new Jajco(Math.floor(Math.random()*game.canvas.width), 0, 20, 20));
+},1000)
+
+setInterval(()=>{
+  game.jajca.forEach(jajca => {
+    if (jajca.position.y<game.canvas.height){
+      jajca.moveY(1)
+    }else{
+      let index = game.jajca.indexOf(jajca)
+      game.jajca.splice(index, 1)
+      console.log("Egg discombobulate")
+    }
+  })
+},20)
+
+
+  setInterval(()=>{
     game.render()
   },TARGET_FRAMETIME_MILISECONDS);
 
