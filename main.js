@@ -2,7 +2,7 @@ console.log("Starting load..");
 
 const TARGET_FRAMERATE = 60;
 const TARGET_FRAMETIME_MILISECONDS = 1000 / TARGET_FRAMERATE;
-
+let zlapanejajca = 0;
 class Point{
   constructor(x, y){
       this.x = x;
@@ -12,13 +12,6 @@ class Point{
 
 class Player{
   constructor(x, y, width, height){
-
-  //   console.log("player clg start..");
-  //   console.log(x);
-  //   console.log(y);
-  //   console.log(width);
-  //   console.log(height);
-  //   console.log("player clg end!");
 
     this.position = new Point(x, y);
 
@@ -34,13 +27,13 @@ class Player{
   }
 
   draw(ctx){
-    ctx.drawImage(this.sprite, this.position.x, game.canvas.height-this.height, this.width, this.height);
+    ctx.drawImage(this.sprite, this.position.x, this.position.y, this.width, this.height);
   }
 }
 
 class Jajco{
   constructor(x, y, width, height){
-    this.position = new Point(x, 0);
+    this.position = new Point(x, y);
 
     this.width = width;
     this.height = height;
@@ -65,7 +58,7 @@ class Game{
     this.ctx = this.canvas.getContext("2d");
 
     this.entities = new Array();
-    this.entities.push(new Player(1, 1, 50, 50));
+    this.entities.push(new Player(1, this.canvas.height - 50, 50, 50));
     this.jajca = new Array();
   }
 
@@ -83,7 +76,16 @@ class Game{
         jajca.draw(this.ctx)
       })
     });
+    
 
+  }
+  collision(jajco) {
+    return (
+        this.entities[0].position.x + this.entities[0].width >= jajco.position.x &&
+        jajco.position.x + jajco.width >= this.entities[0].position.x &&
+        this.entities[0].position.y + this.entities[0].height >= jajco.position.y &&
+        jajco.position.y + jajco.height >= this.entities[0].position.y
+    )
   }
 }
 
@@ -107,7 +109,15 @@ setInterval(()=>{
 setInterval(()=>{
   game.jajca.forEach(jajca => {
     if (jajca.position.y<game.canvas.height){
-      jajca.moveY(1)
+      if (game.collision(jajca)) {
+        let index = game.jajca.indexOf(jajca)
+        game.jajca.splice(index, 1)
+        console.log("Egg discombobulate")
+        zlapanejajca+=1;
+        console.log(zlapanejajca)
+      }else{
+        jajca.moveY(1)
+    }
     }else{
       let index = game.jajca.indexOf(jajca)
       game.jajca.splice(index, 1)
