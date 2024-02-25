@@ -96,13 +96,17 @@ class Game{
 let game = new Game()
 
 document.addEventListener("keydown", (e)=>{
-  if(e.key=="d" || e.key=="D"){
+  if(e.key==="d" || e.key==="D" || e.key==="ArrowRight"){
       game.entities[0].moveX(game.rect.height*0.03);
-      // console.log("keyd")
+      if (game.entities[0].position.x>game.rect.width-0.2*0.08*game.rect.width){
+        game.entities[0].position.x=0-0.2*0.3*game.rect.width
+      }
   }
-  if(e.key=="a" || e.key=="A"){
-      // console.log("keya")
+  if(e.key==="a" || e.key==="A" || e.key==="ArrowLeft"){
       game.entities[0].moveX(-game.rect.height*0.03);
+    if (game.entities[0].position.x<0-0.9*0.08*game.rect.width){
+      game.entities[0].position.x=game.rect.width-0.2*0.08*game.rect.width
+    }
   }
 })
 
@@ -140,7 +144,6 @@ setInterval(()=>{
       if (game.collision(jajca)) {
         let index = game.jajca.indexOf(jajca)
         game.jajca.splice(index, 1)
-        console.log("Egg discombobulate")
         game.zlapanejajca+=1;
         console.log(game.zlapanejajca)
       }else{
@@ -149,7 +152,6 @@ setInterval(()=>{
     }else{
       let index = game.jajca.indexOf(jajca)
       game.jajca.splice(index, 1)
-      console.log("Egg discombobulate")
     }
   })
 },20)
