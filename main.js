@@ -2,7 +2,6 @@ console.log("Starting load..");
 
 const TARGET_FRAMERATE = 60;
 const TARGET_FRAMETIME_MILISECONDS = 1000 / TARGET_FRAMERATE;
-let zlapanejajca = 0;
 class Point{
   constructor(x, y){
       this.x = x;
@@ -53,12 +52,17 @@ class Jajco{
 
 class Game{
   constructor(){
-    this.isRunning = true;
+    this.zlapanejajca = 0;
     this.canvas = document.getElementById("mainCanvas");
-    this.ctx = this.canvas.getContext("2d");
-
+    this.dpr = window.devicePixelRatio || 1;
+    this.rect = this.canvas.getBoundingClientRect();
+    this.canvas.width = this.rect.width * this.dpr;
+    this.canvas.height = this.rect.height * this.dpr;
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.scale(this.dpr, this.dpr);
+    this.ctx.font = '3vw Arial'
     this.entities = new Array();
-    this.entities.push(new Player(1, this.canvas.height - 50, 50, 50));
+    this.entities.push(new Player(1, this.rect.height-1.993025283347864*0.08*this.rect.height, 0.08*this.rect.width, 1.993025283347864*0.08*this.rect.height));
     this.jajca = new Array();
   }
 
@@ -76,7 +80,7 @@ class Game{
         jajca.draw(this.ctx)
       })
     });
-    
+    this.ctx.fillText(`Punkty: ${this.zlapanejajca}`, 0.01*this.rect.width, 1.993025283347864*0.04*this.rect.height)
 
   }
   collision(jajco) {
@@ -93,18 +97,42 @@ let game = new Game()
 
 document.addEventListener("keydown", (e)=>{
   if(e.key=="d" || e.key=="D"){
-      game.entities[0].moveX(10);
+      game.entities[0].moveX(game.rect.height*0.03);
       // console.log("keyd")
   }
   if(e.key=="a" || e.key=="A"){
       // console.log("keya")
-      game.entities[0].moveX(-10);
+      game.entities[0].moveX(-game.rect.height*0.03);
   }
 })
 
 setInterval(()=>{
-  game.jajca.push(new Jajco(Math.floor(Math.random()*game.canvas.width), 0, 20, 20));
+  game.jajca.push(new Jajco(Math.floor(Math.random()*game.rect.width), 0, 0.08*game.rect.height, 1.993025283347864*0.04*game.rect.height));
 },1000)
+setInterval(()=>{
+  game.entities[0].position.y -= game.rect.height*0.003
+  setTimeout(()=>{
+    game.entities[0].position.y -= game.rect.height*0.003;
+  },50)
+  setTimeout(()=>{
+    game.entities[0].position.y -= game.rect.height*0.003;
+  },100)
+  setTimeout(()=>{
+    game.entities[0].position.y -= game.rect.height*0.003;
+  },150)
+  setTimeout(()=>{
+    game.entities[0].position.y += game.rect.height*0.003;
+  },200)
+  setTimeout(()=>{
+    game.entities[0].position.y += game.rect.height*0.003;
+  },250)
+  setTimeout(()=>{
+    game.entities[0].position.y += game.rect.height*0.003;
+  },300)
+  setTimeout(()=>{
+    game.entities[0].position.y += game.rect.height*0.003;
+  },350)
+},400)
 
 setInterval(()=>{
   game.jajca.forEach(jajca => {
@@ -113,10 +141,10 @@ setInterval(()=>{
         let index = game.jajca.indexOf(jajca)
         game.jajca.splice(index, 1)
         console.log("Egg discombobulate")
-        zlapanejajca+=1;
-        console.log(zlapanejajca)
+        game.zlapanejajca+=1;
+        console.log(game.zlapanejajca)
       }else{
-        jajca.moveY(1)
+        jajca.moveY(game.rect.height*0.005)
     }
     }else{
       let index = game.jajca.indexOf(jajca)
@@ -125,7 +153,6 @@ setInterval(()=>{
     }
   })
 },20)
-
 
   setInterval(()=>{
     game.render()
