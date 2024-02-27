@@ -68,6 +68,7 @@ class Game{
     this.eggs = [];
   }
 
+
   renderClear(){
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
@@ -85,14 +86,17 @@ class Game{
       });
       this.ctx.fillText(`Punkty: ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
     }else{
-      this.intervals.forEach(interval=>{
-        clearInterval(interval)
-      })
-      this.timeouts.forEach(timeout=>{
-        clearTimeout(timeout)
-      })
-      startGame()
+      this.ctx.fillStyle = "red"
+      this.ctx.fillRect(0.25*this.rect.width, 0.25*this.rect.height, 0.5*this.rect.width, 0.5*this.rect.height)
+      this.ctx.fillStyle="black"
+      this.ctx.fillText("Start game", 0.3332555921861681*this.rect.width, 0.5*this.rect.height)
+      // 0.0557565280126868
+      this.mainMenu()
     }
+  }
+  mainMenu() {
+    this.reset(-10)
+    document.addEventListener("click", this.onclick)
   }
   collision(egg) {
     return (
@@ -116,73 +120,94 @@ if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
   }
 }
 }
+onclick(e){
+  // console.log("click")
+  let canvasLeft = game.canvas.offsetLeft + game.canvas.clientLeft
+  let  canvasTop = game.canvas.offsetTop + game.canvas.clientTop
+  let x = e.pageX - canvasLeft
+  let y = e.pageY - canvasTop;
+  if(y > 0.5*game.rect.height-0.0557565280126868*game.rect.height && y < 0.5*game.rect.height-0.0557565280126868*game.rect.height + 0.0557565280126868*game.rect.height
+      && x > 0.3332555921861681*game.rect.width && x < 0.3332555921861681*game.rect.width + 0.3332555921861681*game.rect.width) {
+    game.startGame()
+  }
 }
 
-function startGame() {
-  document.removeEventListener("keydown", game.keydown)
-  game.eggs = []
-  game.player.caughtEggs = 0;
-  game.player.lives=3;
-  game.player.position.x=1;
-  game.player.position.y=game.rect.height-1.993025283347864*0.08*game.rect.height;
-  document.addEventListener("keydown", game.keydown)
+  reset(lives){
+    document.removeEventListener("keydown", this.keydown)
+    document.removeEventListener("click", this.onclick)
+    this.intervals.forEach(interval=>{
+      clearInterval(interval)
+    })
+    this.timeouts.forEach(timeout=>{
+      clearTimeout(timeout)
+    })
+    game.ctx.fillStyle = "black"
+    game.eggs = []
+    game.player.caughtEggs = 0;
+    game.player.lives=lives;
+    game.player.position.x=1;
+    game.player.position.y=game.rect.height-1.993025283347864*0.08*game.rect.height;
+  }
+  startGame() {
+    this.reset(3)
+    document.addEventListener("keydown", game.keydown)
 
-  game.intervals.push(setInterval(() => {
-    game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
-  }, 1000))
+    game.intervals.push(setInterval(() => {
+      game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
+    }, 1000))
 
-  game.intervals.push(setInterval(() => {
-    game.player.position.y -= game.rect.height * 0.003
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y -= game.rect.height * 0.003;
-    }, 50))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y -= game.rect.height * 0.003;
-    }, 100))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y -= game.rect.height * 0.003;
-    }, 150))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y += game.rect.height * 0.003;
-    }, 200))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y += game.rect.height * 0.003;
-    }, 250))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y += game.rect.height * 0.003;
-    }, 300))
-    game.timeouts.push(setTimeout(() => {
-      game.player.position.y += game.rect.height * 0.003;
-      game.timeouts = []
-    }, 350))
-  }, 400))
+    game.intervals.push(setInterval(() => {
+      game.player.position.y -= game.rect.height * 0.003
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y -= game.rect.height * 0.003;
+      }, 50))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y -= game.rect.height * 0.003;
+      }, 100))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y -= game.rect.height * 0.003;
+      }, 150))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y += game.rect.height * 0.003;
+      }, 200))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y += game.rect.height * 0.003;
+      }, 250))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y += game.rect.height * 0.003;
+      }, 300))
+      game.timeouts.push(setTimeout(() => {
+        game.player.position.y += game.rect.height * 0.003;
+        game.timeouts = []
+      }, 350))
+    }, 400))
 
-  game.intervals.push(setInterval(() => {
-        game.eggs.forEach(eggs => {
-          if (eggs.position.y < game.rect.height) {
-            if (game.collision(eggs)) {
+    game.intervals.push(setInterval(() => {
+          game.eggs.forEach(eggs => {
+            if (eggs.position.y < game.rect.height) {
+              if (game.collision(eggs)) {
+                let index = game.eggs.indexOf(eggs)
+                game.eggs.splice(index, 1)
+                game.player.caughtEggs += 1;
+                console.log(game.player.caughtEggs)
+              } else {
+                eggs.moveY(game.rect.height * 0.005)
+              }
+            } else {
               let index = game.eggs.indexOf(eggs)
               game.eggs.splice(index, 1)
-              game.player.caughtEggs += 1;
-              console.log(game.player.caughtEggs)
-            } else {
-              eggs.moveY(game.rect.height * 0.005)
+              game.player.lives = game.player.lives - 1;
+              console.log(game.player.lives)
             }
-          } else {
-            let index = game.eggs.indexOf(eggs)
-            game.eggs.splice(index, 1)
-            game.player.lives = game.player.lives - 1;
-            console.log(game.player.lives)
-          }
-        })
-      }, 20)
-  )
-  game.intervals.push(setInterval(() => {
-    game.render()
-  }, TARGET_FRAMETIME_MILISECONDS))
+          })
+        }, 20)
+    )
+
+
+  }
+
 
 }
-
 
 
 
@@ -191,6 +216,9 @@ game.font.load().then(function(font){
 
   document.fonts.add(font);
   console.log('Font loaded');
-  startGame()
 
+  game.mainMenu()
+setInterval(() => {
+    game.render()
+  }, TARGET_FRAMETIME_MILISECONDS)
 });
