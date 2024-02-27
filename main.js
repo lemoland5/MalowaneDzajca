@@ -11,8 +11,8 @@ class Point{
 
 class Player{
   constructor(x, y, width, height){
-    this.catchedEggs = 0;
-    this.lifes = 3;
+    this.caughtEggs=undefined
+    this.lives=undefined
     this.position = new Point(x, y);
 
     this.width = width;
@@ -54,6 +54,7 @@ class Egg{
 class Game{
   constructor(){
     this.intervals = []
+    this.timeouts = []
     this.font = new FontFace('font', 'url(https://fonts.cdnfonts.com/s/19901/8-BIT%20WONDER.woff)');
     this.canvas = document.getElementById("mainCanvas");
     this.dpr = window.devicePixelRatio || 1;
@@ -74,19 +75,23 @@ class Game{
 
   render(){
     this.renderClear();
-    if (this.player.lifes>0) {
-      for (let i = 0; i < this.player.lifes; i++) {
+    if (this.player.lives>0) {
+      for (let i = 0; i < this.player.lives; i++) {
         this.ctx.drawImage(this.player.sprite, i * this.rect.width * 0.05, this.rect.height * 0.1, this.rect.width * 0.05, 1.993025283347864 * 0.05 * this.rect.height);
       }
       this.player.draw(this.ctx);
       this.eggs.forEach(eggs => {
         eggs.draw(this.ctx)
       });
-      this.ctx.fillText(`Punkty: ${this.player.catchedEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
+      this.ctx.fillText(`Punkty: ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
     }else{
       this.intervals.forEach(interval=>{
         clearInterval(interval)
       })
+      this.timeouts.forEach(timeout=>{
+        clearTimeout(timeout)
+      })
+      startGame()
     }
   }
   collision(egg) {
@@ -97,9 +102,86 @@ class Game{
         egg.position.y + egg.height >= this.player.position.y
     )
   }
+  keydown(e){
+  if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
+  game.player.moveX(game.rect.height * 0.03);
+  if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
+  game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
+}
+}
+if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
+  game.player.moveX(-game.rect.height * 0.03);
+  if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
+    game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
+  }
+}
+}
 }
 
+function startGame() {
+  document.removeEventListener("keydown", game.keydown)
+  game.eggs = []
+  game.player.caughtEggs = 0;
+  game.player.lives=3;
+  game.player.position.x=1;
+  game.player.position.y=game.rect.height-1.993025283347864*0.08*game.rect.height;
+  document.addEventListener("keydown", game.keydown)
 
+  game.intervals.push(setInterval(() => {
+    game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
+  }, 1000))
+
+  game.intervals.push(setInterval(() => {
+    game.player.position.y -= game.rect.height * 0.003
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y -= game.rect.height * 0.003;
+    }, 50))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y -= game.rect.height * 0.003;
+    }, 100))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y -= game.rect.height * 0.003;
+    }, 150))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y += game.rect.height * 0.003;
+    }, 200))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y += game.rect.height * 0.003;
+    }, 250))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y += game.rect.height * 0.003;
+    }, 300))
+    game.timeouts.push(setTimeout(() => {
+      game.player.position.y += game.rect.height * 0.003;
+      game.timeouts = []
+    }, 350))
+  }, 400))
+
+  game.intervals.push(setInterval(() => {
+        game.eggs.forEach(eggs => {
+          if (eggs.position.y < game.rect.height) {
+            if (game.collision(eggs)) {
+              let index = game.eggs.indexOf(eggs)
+              game.eggs.splice(index, 1)
+              game.player.caughtEggs += 1;
+              console.log(game.player.caughtEggs)
+            } else {
+              eggs.moveY(game.rect.height * 0.005)
+            }
+          } else {
+            let index = game.eggs.indexOf(eggs)
+            game.eggs.splice(index, 1)
+            game.player.lives = game.player.lives - 1;
+            console.log(game.player.lives)
+          }
+        })
+      }, 20)
+  )
+  game.intervals.push(setInterval(() => {
+    game.render()
+  }, TARGET_FRAMETIME_MILISECONDS))
+
+}
 
 
 
@@ -109,74 +191,6 @@ game.font.load().then(function(font){
 
   document.fonts.add(font);
   console.log('Font loaded');
-
-document.addEventListener("keydown", (e)=>{
-  if(e.key==="d" || e.key==="D" || e.key==="ArrowRight"){
-      game.player.moveX(game.rect.height*0.03);
-      if (game.player.position.x>game.rect.width-0.2*0.08*game.rect.width){
-        game.player.position.x=0-0.2*0.3*game.rect.width
-      }
-  }
-  if(e.key==="a" || e.key==="A" || e.key==="ArrowLeft"){
-      game.player.moveX(-game.rect.height*0.03);
-    if (game.player.position.x<0-0.9*0.08*game.rect.width){
-      game.player.position.x=game.rect.width-0.2*0.08*game.rect.width
-    }
-  }
-})
-
-game.intervals.push(setInterval(()=>{
-  game.eggs.push(new Egg(Math.floor(Math.random()*game.rect.width), 0, 0.08*game.rect.height, 1.993025283347864*0.04*game.rect.height));
-},1000))
-
-  game.intervals.push(setInterval(()=>{
-    game.player.position.y -= game.rect.height*0.003
-    setTimeout(()=>{
-      game.player.position.y -= game.rect.height*0.003;
-    },50)
-    setTimeout(()=>{
-      game.player.position.y -= game.rect.height*0.003;
-    },100)
-    setTimeout(()=>{
-      game.player.position.y -= game.rect.height*0.003;
-    },150)
-    setTimeout(()=>{
-      game.player.position.y += game.rect.height*0.003;
-    },200)
-    setTimeout(()=>{
-      game.player.position.y += game.rect.height*0.003;
-    },250)
-    setTimeout(()=>{
-      game.player.position.y += game.rect.height*0.003;
-    },300)
-    setTimeout(()=>{
-      game.player.position.y += game.rect.height*0.003;
-    },350)
-  },400))
-
-game.intervals.push(setInterval(()=>{
-      game.eggs.forEach(eggs => {
-        if (eggs.position.y<game.rect.height){
-          if (game.collision(eggs)) {
-            let index = game.eggs.indexOf(eggs)
-            game.eggs.splice(index, 1)
-            game.player.catchedEggs+=1;
-            console.log(game.player.catchedEggs)
-          }else{
-            eggs.moveY(game.rect.height*0.005)
-          }
-        }else{
-          let index = game.eggs.indexOf(eggs)
-          game.eggs.splice(index, 1)
-          game.player.lifes=game.player.lifes-1;
-          console.log(game.player.lifes)
-        }
-      })
-    },20)
-)
-  game.intervals.push(setInterval(()=>{
-    game.render()
-  },TARGET_FRAMETIME_MILISECONDS))
-
+  startGame()
 
 });
