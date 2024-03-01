@@ -1,6 +1,6 @@
 console.log("Starting load..");
 
-const TARGET_FRAMERATE = 60;
+const TARGET_FRAMERATE = 140;
 const TARGET_FRAMETIME_MILISECONDS = 1000 / TARGET_FRAMERATE;
 class Point{
   constructor(x, y){
@@ -75,23 +75,25 @@ class Game{
 
 
   render(){
-    this.renderClear();
-    if (this.player.lives>0) {
-      for (let i = 0; i < this.player.lives; i++) {
-        this.ctx.drawImage(this.player.sprite, i * this.rect.width * 0.05, this.rect.height * 0.1, this.rect.width * 0.05, 1.993025283347864 * 0.05 * this.rect.height);
+    if(document.hasFocus()) {
+      this.renderClear();
+      if (this.player.lives > 0) {
+        for (let i = 0; i < this.player.lives; i++) {
+          this.ctx.drawImage(this.player.sprite, i * this.rect.width * 0.05, this.rect.height * 0.1, this.rect.width * 0.05, 1.993025283347864 * 0.05 * this.rect.height);
+        }
+        this.player.draw(this.ctx);
+        this.eggs.forEach(eggs => {
+          eggs.draw(this.ctx)
+        });
+        this.ctx.fillText(`Punkty: ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
+      } else {
+        this.ctx.fillStyle = "red"
+        this.ctx.fillRect(0.25 * this.rect.width, 0.25 * this.rect.height, 0.5 * this.rect.width, 0.5 * this.rect.height)
+        this.ctx.fillStyle = "black"
+        this.ctx.fillText("Start game", 0.3332555921861681 * this.rect.width, 0.5 * this.rect.height)
+        // 0.0557565280126868
+        this.mainMenu()
       }
-      this.player.draw(this.ctx);
-      this.eggs.forEach(eggs => {
-        eggs.draw(this.ctx)
-      });
-      this.ctx.fillText(`Punkty: ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
-    }else{
-      this.ctx.fillStyle = "red"
-      this.ctx.fillRect(0.25*this.rect.width, 0.25*this.rect.height, 0.5*this.rect.width, 0.5*this.rect.height)
-      this.ctx.fillStyle="black"
-      this.ctx.fillText("Start game", 0.3332555921861681*this.rect.width, 0.5*this.rect.height)
-      // 0.0557565280126868
-      this.mainMenu()
     }
   }
   mainMenu() {
@@ -153,53 +155,59 @@ onclick(e){
     document.addEventListener("keydown", game.keydown)
 
     game.intervals.push(setInterval(() => {
-      game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
+      if (document.hasFocus()) {
+        game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
+      }
     }, 1000))
 
     game.intervals.push(setInterval(() => {
-      game.player.position.y -= game.rect.height * 0.003
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y -= game.rect.height * 0.003;
-      }, 50))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y -= game.rect.height * 0.003;
-      }, 100))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y -= game.rect.height * 0.003;
-      }, 150))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y += game.rect.height * 0.003;
-      }, 200))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y += game.rect.height * 0.003;
-      }, 250))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y += game.rect.height * 0.003;
-      }, 300))
-      game.timeouts.push(setTimeout(() => {
-        game.player.position.y += game.rect.height * 0.003;
-        game.timeouts = []
-      }, 350))
+      if (document.hasFocus()) {
+        game.player.position.y -= game.rect.height * 0.003
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y -= game.rect.height * 0.003;
+        }, 50))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y -= game.rect.height * 0.003;
+        }, 100))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y -= game.rect.height * 0.003;
+        }, 150))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y += game.rect.height * 0.003;
+        }, 200))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y += game.rect.height * 0.003;
+        }, 250))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y += game.rect.height * 0.003;
+        }, 300))
+        game.timeouts.push(setTimeout(() => {
+          game.player.position.y += game.rect.height * 0.003;
+          game.timeouts = []
+        }, 350))
+      }
     }, 400))
 
     game.intervals.push(setInterval(() => {
-          game.eggs.forEach(eggs => {
-            if (eggs.position.y < game.rect.height) {
-              if (game.collision(eggs)) {
-                let index = game.eggs.indexOf(eggs)
-                game.eggs.splice(index, 1)
-                game.player.caughtEggs += 1;
-                console.log(game.player.caughtEggs)
-              } else {
-                eggs.moveY(game.rect.height * 0.005)
-              }
-            } else {
+      if (document.hasFocus()) {
+        game.eggs.forEach(eggs => {
+          if (eggs.position.y < game.rect.height) {
+            if (game.collision(eggs)) {
               let index = game.eggs.indexOf(eggs)
               game.eggs.splice(index, 1)
-              game.player.lives = game.player.lives - 1;
-              console.log(game.player.lives)
+              game.player.caughtEggs += 1;
+              console.log(game.player.caughtEggs)
+            } else {
+              eggs.moveY(game.rect.height * 0.005)
             }
-          })
+          } else {
+            let index = game.eggs.indexOf(eggs)
+            game.eggs.splice(index, 1)
+            game.player.lives = game.player.lives - 1;
+            console.log(game.player.lives)
+          }
+        })
+      }
         }, 20)
     )
 
