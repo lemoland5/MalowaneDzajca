@@ -56,6 +56,7 @@ class Game{
   constructor(){
     this.intervals = []
     this.timeouts = []
+    this.backgroundMusic = new Audio("./sound/background music.mp3")
     this.font = new FontFace('font', 'url(https://fonts.cdnfonts.com/s/19901/8-BIT%20WONDER.woff)');
     this.canvas = document.getElementById("mainCanvas");
     this.dpr = window.devicePixelRatio || 1;
@@ -111,13 +112,13 @@ class Game{
   }
 
   moveLeft(){
-    game.player.moveX(-game.rect.width * 0.002);
+    game.player.moveX(-game.rect.width * 0.0015);
     if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
       game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
     }
   }
   moveRight(){
-    game.player.moveX(game.rect.width * 0.002);
+    game.player.moveX(game.rect.width * 0.0015);
     if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
       game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
     }
@@ -176,6 +177,8 @@ onclick(e){
     this.timeouts.forEach(timeout=>{
       clearTimeout(timeout)
     })
+    this.backgroundMusic.pause()
+    this.backgroundMusic.load()
     game.player.movingLeft = false;
     game.player.movingRight = false;
     game.ctx.fillStyle = "black"
@@ -189,7 +192,7 @@ onclick(e){
     this.reset(3)
     document.addEventListener("keydown", game.keyDown)
     document.addEventListener("keyup", game.keyUp)
-
+    this.backgroundMusic.play();
     game.intervals.push(setInterval(() => {
       if (document.hasFocus()) {
         game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
