@@ -14,7 +14,8 @@ class Player{
     this.caughtEggs=undefined
     this.lives=undefined
     this.position = new Point(x, y);
-
+    this.movingLeft = false;
+    this.movingRight = false;
     this.width = width;
     this.height = height;
 
@@ -108,20 +109,51 @@ class Game{
         egg.position.y + egg.height >= this.player.position.y
     )
   }
-  keydown(e){
-  if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
-  game.player.moveX(game.rect.height * 0.03);
-  if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
-  game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
-}
-}
-if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
-  game.player.moveX(-game.rect.height * 0.03);
-  if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
-    game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
+
+  moveLeft(){
+    game.player.moveX(-game.rect.height * 0.002);
+    if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
+      game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
+    }
   }
-}
-}
+  moveRight(){
+    game.player.moveX(game.rect.height * 0.002);
+    if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
+      game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
+    }
+  }
+
+  keyDown(e){
+    if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
+        game.player.movingLeft = true
+      }
+    if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
+      game.player.movingRight = true;
+    }
+  }
+
+  keyUp(e){
+    if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
+      game.player.movingLeft = false
+    }
+    if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
+      game.player.movingRight = false;
+    }
+  }
+//   keydown(e){
+//   if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") {
+//   game.player.moveX(game.rect.height * 0.03);
+//   if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
+//   game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
+// }
+// }
+// if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
+//   game.player.moveX(-game.rect.height * 0.03);
+//   if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
+//     game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
+//   }
+// }
+// }
 onclick(e){
   // console.log("click")
   let canvasLeft = game.canvas.offsetLeft + game.canvas.clientLeft
@@ -135,7 +167,8 @@ onclick(e){
 }
 
   reset(lives){
-    document.removeEventListener("keydown", this.keydown)
+    document.removeEventListener("keydown", this.keyDown)
+    document.removeEventListener("keyup", this.keyUp)
     document.removeEventListener("click", this.onclick)
     this.intervals.forEach(interval=>{
       clearInterval(interval)
@@ -143,6 +176,8 @@ onclick(e){
     this.timeouts.forEach(timeout=>{
       clearTimeout(timeout)
     })
+    game.player.movingLeft = false;
+    game.player.movingRight = false;
     game.ctx.fillStyle = "black"
     game.eggs = []
     game.player.caughtEggs = 0;
@@ -152,7 +187,8 @@ onclick(e){
   }
   startGame() {
     this.reset(3)
-    document.addEventListener("keydown", game.keydown)
+    document.addEventListener("keydown", game.keyDown)
+    document.addEventListener("keyup", game.keyUp)
 
     game.intervals.push(setInterval(() => {
       if (document.hasFocus()) {
@@ -187,7 +223,14 @@ onclick(e){
         }, 350))
       }
     }, 400))
-
+    game.intervals.push(setInterval(()=>{
+      if(game.player.movingLeft===true){
+        game.moveLeft()
+      }
+      if (game.player.movingRight===true){
+        game.moveRight()
+      }
+    }, 1))
     game.intervals.push(setInterval(() => {
       if (document.hasFocus()) {
         game.eggs.forEach(eggs => {
