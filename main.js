@@ -39,7 +39,7 @@ class Egg{
     this.width = width;
     this.height = height;
 
-    this.spriteId = "buniimg";
+    this.spriteId = "jajco";
     this.sprite = document.getElementById(this.spriteId);
   }
 
@@ -111,13 +111,13 @@ class Game{
   }
 
   moveLeft(){
-    game.player.moveX(-game.rect.height * 0.002);
+    game.player.moveX(-game.rect.width * 0.002);
     if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
       game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
     }
   }
   moveRight(){
-    game.player.moveX(game.rect.height * 0.002);
+    game.player.moveX(game.rect.width * 0.002);
     if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
       game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
     }
