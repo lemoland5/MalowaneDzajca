@@ -9,9 +9,25 @@
     background-image: url("./png/backg.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
+
+    border: 7px solid #000000cc;
+    border-radius: 40px;
 }
+
+body, html{
+    margin: 0;
+}
+
 body{
-    padding-top: 2.5%;
+    background-image: url("./png/bodybg.jpg");
+    background-size: cover;
+}
+
+#container{
+    width: 100vw;
+    height: 100vh;
+
     display: flex;
+
     justify-content: center;
 }

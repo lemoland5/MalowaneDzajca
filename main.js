@@ -1,6 +1,14 @@
 console.log("Starting load..");
 
-const TARGET_FRAMERATE = 140;
+function getRandomInt(max){
+  return Math.ceil(Math.random() * max);
+}
+
+function getRandomRange(min, max){
+  return Math.random() * (max - min) + min;
+}
+
+const TARGET_FRAMERATE = 165;
 const TARGET_FRAMETIME_MILISECONDS = 1000 / TARGET_FRAMERATE;
 class Point{
   constructor(x, y){
@@ -36,20 +44,50 @@ class Egg{
   constructor(x, y, width, height){
     this.position = new Point(x, y);
 
-    this.width = width;
-    this.height = height;
+    this.scale = getRandomRange(1,1.25)
 
-    this.spriteId = "jajco";
+    // this.rotation = getRandomInt(360);
+    this.rotation = 0;
+
+    this.rotationVelocity = Math.random(-1,1);
+
+    this.width = width * this.scale;
+    this.height = height * this.scale;
+
+    this.spriteId = "jajco" + getRandomInt(3);
+    console.log(this.rotation);
+    // document.getElementById(this.spriteId).style.transform = `rotate(${this.rotation}deg)`;
+
     this.sprite = document.getElementById(this.spriteId);
+
   }
 
   moveY(y){
+    this.rotation += this.rotationVelocity;
+
     this.position.y += y;
   }
 
   draw(ctx){
-    ctx.drawImage(this.sprite, this.position.x, this.position.y, this.width, this.height);
+
+    // context.clearRect(0,0,canvas.width,canvas.height);
+
+
+    // ctx.setTransform(1, 0, 0, 1, this.position.x, this.position.y); // sets scale and origin
+    ctx.save();
+
+    ctx.translate(this.position.x + this.width/2, this.position.y + this.height/2);
+
+    ctx.rotate(this.rotation * Math.PI/180);
+
+    ctx.translate(0 - this.position.x - this.width/2, 0 - this.position.y - this.height/2);
+
+    ctx.drawImage(this.sprite, this.position.x + this.width/2, this.position.y + this.height/2, this.width, this.height );
+
+
+    ctx.restore();
   }
+  
 }
 
 class Game{
@@ -197,7 +235,7 @@ onclick(e){
       if (document.hasFocus()) {
         game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
       }
-    }, 1000))
+    }, 1300))
 
     game.intervals.push(setInterval(() => {
       if (document.hasFocus()) {
