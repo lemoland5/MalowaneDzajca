@@ -6,7 +6,7 @@
 #mainCanvas{
     width: 90%;
     height: 100%;
-    background-image: url("./png/backg.png");
+    background-image: url("./png/backgnight.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
 
@@ -19,7 +19,7 @@ body, html{
 }
 
 body{
-    background-image: url("./png/bodybg.jpg");
+    background-image: url("./png/bodybg.png");
     background-size: cover;
 }
 

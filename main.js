@@ -17,6 +17,18 @@ class Point{
   }
 }
 
+let storedHighscore = parseInt(localStorage.getItem('bunnyhighscore'));
+let highscore = storedHighscore;
+
+
+console.log(storedHighscore);
+
+if(typeof(storedHighscore) != "number" ){
+  storedHighscore = 0;
+}
+
+console.log(storedHighscore);
+
 class Player{
   constructor(x, y, width, height){
     this.caughtEggs=undefined
@@ -39,6 +51,8 @@ class Player{
     ctx.drawImage(this.sprite, this.position.x, this.position.y, this.width, this.height);
   }
 }
+
+
 
 class Egg{
   constructor(x, y, width, height){
@@ -94,7 +108,10 @@ class Game{
   constructor(){
     this.intervals = []
     this.timeouts = []
-    this.backgroundMusic = new Audio("./sound/background music.mp3")
+    this.backgroundMusic = new Audio("./sound/bart the barter.wav")
+    this.playerDamageSound = new Audio("./sound/damage.wav");
+    this.gameoverSound = new Audio("./sound/gameover.wav");
+    this.scoreSound = new Audio("./sound/score.wav");
     this.font = new FontFace('font', 'url(https://fonts.cdnfonts.com/s/19901/8-BIT%20WONDER.woff)');
     this.canvas = document.getElementById("mainCanvas");
     this.dpr = window.devicePixelRatio || 1;
@@ -125,12 +142,20 @@ class Game{
         this.eggs.forEach(eggs => {
           eggs.draw(this.ctx)
         });
-        this.ctx.fillText(`Punkty: ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
+        this.ctx.fillStyle = "white"
+        this.ctx.fillText(`SCORE - ${this.player.caughtEggs}`, 0.01 * this.rect.width, 1.993025283347864 * 0.04 * this.rect.height)
       } else {
-        this.ctx.fillStyle = "red"
-        this.ctx.fillRect(0.25 * this.rect.width, 0.25 * this.rect.height, 0.5 * this.rect.width, 0.5 * this.rect.height)
+        if(highscore >= storedHighscore){
+          localStorage.setItem("bunnyhighscore",highscore);
+        }
+
+
         this.ctx.fillStyle = "black"
-        this.ctx.fillText("Start game", 0.3332555921861681 * this.rect.width, 0.5 * this.rect.height)
+        this.ctx.fillRect(0 * this.rect.width, 0 * this.rect.height, 1 * this.rect.width, 1 * this.rect.height)
+        this.ctx.fillStyle = "white"
+        this.ctx.fillText("START GAME", 0.3332555921861681 * this.rect.width, 0.525 * this.rect.height)
+        this.ctx.fillStyle = "gray"
+        this.ctx.fillText(`HIGH SCORE - ${highscore}`, 0.315 * this.rect.width, 0.7 * this.rect.height)
         // 0.0557565280126868
         this.mainMenu()
       }
@@ -216,7 +241,24 @@ onclick(e){
       clearTimeout(timeout)
     })
     this.backgroundMusic.pause()
-    this.backgroundMusic.load()
+    // this.playerDamageSound.pause();
+    // this.gameoverSound.pause();
+    // this.scoreSound.pause();
+
+    if(!this.backgroundMusic.readyState){
+      this.backgroundMusic.load();
+    }
+    if(!this.playerDamageSound.readyState){
+      this.playerDamageSound.load();
+    }
+
+    if(!this.gameoverSound.readyState){
+      this.gameoverSound.load();
+    }
+    if(!this.scoreSound.readyState){
+      this.scoreSound.load();
+    }
+
     game.player.movingLeft = false;
     game.player.movingRight = false;
     game.ctx.fillStyle = "black"
@@ -280,6 +322,12 @@ onclick(e){
               let index = game.eggs.indexOf(eggs)
               game.eggs.splice(index, 1)
               game.player.caughtEggs += 1;
+              this.scoreSound.play();
+
+              if(game.player.caughtEggs > highscore){
+                highscore = game.player.caughtEggs;
+              }
+
               console.log(game.player.caughtEggs)
             } else {
               eggs.moveY(game.rect.height * 0.005)
@@ -288,6 +336,16 @@ onclick(e){
             let index = game.eggs.indexOf(eggs)
             game.eggs.splice(index, 1)
             game.player.lives = game.player.lives - 1;
+
+            if(game.player.lives > 0){
+              this.playerDamageSound.play();
+            }
+            else{
+              console.log("ive died");
+              // localStorage.setItem("bunnyhighscore",highscore)
+              this.gameoverSound.play();
+            }
+
             console.log(game.player.lives)
           }
         })
