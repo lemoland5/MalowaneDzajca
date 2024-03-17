@@ -11,7 +11,7 @@
     background-size: 100% 100%;
 
     border: 7px solid #000000cc;
-    border-radius: 40px;
+    /* border-radius: 40px; */
 }
 
 body, html{
@@ -19,7 +19,7 @@ body, html{
 }
 
 body{
-    background-image: url("./png/bodybg.png");
+    background-image: url("./png/backgchalk.png");
     background-size: cover;
 }
 
