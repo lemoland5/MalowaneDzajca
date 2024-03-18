@@ -68,8 +68,6 @@ class Player{
   }
 }
 
-
-
 class Egg{
   constructor(x, y, width, height){
     this.position = new Point(x, y);
