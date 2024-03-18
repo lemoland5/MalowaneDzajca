@@ -1,5 +1,6 @@
 console.log("Starting load..");
 
+// 1 to max
 function getRandomInt(max){
   return Math.ceil(Math.random() * max);
 }
@@ -17,11 +18,20 @@ class Point{
   }
 }
 
-let storedHighscore = parseInt(localStorage.getItem('bunnyhighscore'));
-let highscore = storedHighscore;
+let storedHighscore = 0
+let highscore = 0;
 
+if(localStorage.hasOwnProperty('bunnyhighscore')){
+  storedHighscore = parseInt(localStorage.getItem('bunnyhighscore'));
+  highscore = storedHighscore;
+}
 
-console.log(storedHighscore);
+let currentPostfix = "";
+let eggSpawnDelay = 1500;
+
+console.log(highscore == null)
+
+console.log(highscore);
 
 if(typeof(storedHighscore) != "number" ){
   storedHighscore = 0;
@@ -31,16 +41,22 @@ console.log(storedHighscore);
 
 class Player{
   constructor(x, y, width, height){
-    this.caughtEggs=undefined
-    this.lives=undefined
+    this.caughtEggs = undefined
+    this.lives = undefined
     this.position = new Point(x, y);
     this.movingLeft = false;
     this.movingRight = false;
     this.width = width;
     this.height = height;
 
-    this.spriteId = "buniimg";
+    this.speed = 1;
+
+    this.spriteId = "buniimg" + currentPostfix;
     this.sprite = document.getElementById(this.spriteId);
+  }
+
+  refreshSprite(){
+    this.spriteId = "buniimg" + currentPostfix;
   }
 
   moveX(x){
@@ -59,16 +75,53 @@ class Egg{
     this.position = new Point(x, y);
 
     this.scale = getRandomRange(1,1.25)
-
     // this.rotation = getRandomInt(360);
     this.rotation = 0;
-
     this.rotationVelocity = Math.random(-1,1);
+
+    this.type = getRandomInt(3);
+
+    // if(getRandomInt(10) == 10){
+    //   this.type = 4;
+    // }
+
+    console.log("type: " + this.type);
+
+    this.spriteId = "jajco" + this.type + currentPostfix;
+
+    this.collisionReaction = new Object;
+    this.collisionReaction.score = 0;
+    this.collisionReaction.lives = 0;
+    
+    // 0 - no reaction
+    // 1 - dark mode for 10 second
+    this.collisionReaction.mode = 0;
+
+    switch(this.type){
+      case 1:
+        this.collisionReaction.score = 1;
+        this.collisionReaction.lives = 0;
+        break;
+      case 2:
+        this.collisionReaction.score = 2;
+        this.collisionReaction.lives = 0;
+        break;
+      case 3:
+        this.collisionReaction.score = 5;
+        this.collisionReaction.lives = 0;
+        break;
+      case 4:
+        this.collisionReaction.score = 3;
+        this.collisionReaction.lives = -1;
+        this.collisionReaction.mode = 1;
+
+    }
 
     this.width = width * this.scale;
     this.height = height * this.scale;
 
-    this.spriteId = "jajco" + getRandomInt(3);
+    // this.spriteId = "jajco" + getRandomInt(3);
+    console.log("sprite w id - " + this.spriteId)
     console.log(this.rotation);
     // document.getElementById(this.spriteId).style.transform = `rotate(${this.rotation}deg)`;
 
@@ -134,6 +187,8 @@ class Game{
   render(){
     if(document.hasFocus()) {
       this.renderClear();
+
+
       if (this.player.lives > 0) {
         for (let i = 0; i < this.player.lives; i++) {
           this.ctx.drawImage(this.player.sprite, i * this.rect.width * 0.05, this.rect.height * 0.1, this.rect.width * 0.05, 1.993025283347864 * 0.05 * this.rect.height);
@@ -166,22 +221,34 @@ class Game{
     document.addEventListener("click", this.onclick)
   }
   collision(egg) {
-    return (
-        this.player.position.x + this.player.width >= egg.position.x &&
-        egg.position.x + egg.width >= this.player.position.x &&
-        this.player.position.y + this.player.height >= egg.position.y &&
-        egg.position.y + egg.height >= this.player.position.y
-    )
+
+    let collision = this.player.position.x + this.player.width >= egg.position.x &&
+    egg.position.x + egg.width >= this.player.position.x &&
+    this.player.position.y + this.player.height >= egg.position.y &&
+    egg.position.y + egg.height >= this.player.position.y
+
+    if(collision){
+      this.player.caughtEggs += egg.collisionReaction.score;
+      this.player.lives += egg.collisionReaction.lives;
+
+      if(egg.collisionReaction.mode){
+        currentPostfix = "chalk";
+        eggSpawnDelay = 1;
+      }
+
+    }
+
+    return collision;
   }
 
   moveLeft(){
-    game.player.moveX(-game.rect.width * 0.0015);
+    game.player.moveX(-game.rect.width * game.player.speed / 1000);
     if (game.player.position.x < 0 - 0.9 * 0.08 * game.rect.width) {
       game.player.position.x = game.rect.width - 0.2 * 0.08 * game.rect.width
     }
   }
   moveRight(){
-    game.player.moveX(game.rect.width * 0.0015);
+    game.player.moveX(game.rect.width * game.player.speed / 1000);
     if (game.player.position.x > game.rect.width - 0.2 * 0.08 * game.rect.width) {
       game.player.position.x = 0 - 0.2 * 0.3 * game.rect.width
     }
@@ -277,7 +344,7 @@ onclick(e){
       if (document.hasFocus()) {
         game.eggs.push(new Egg(Math.floor(Math.random() * game.rect.width), 0, 0.08 * game.rect.height, 1.993025283347864 * 0.04 * game.rect.height));
       }
-    }, 1300))
+    }, eggSpawnDelay))
 
     game.intervals.push(setInterval(() => {
       if (document.hasFocus()) {
@@ -321,7 +388,7 @@ onclick(e){
             if (game.collision(eggs)) {
               let index = game.eggs.indexOf(eggs)
               game.eggs.splice(index, 1)
-              game.player.caughtEggs += 1;
+              // game.player.caughtEggs += 1;
               this.scoreSound.play();
 
               if(game.player.caughtEggs > highscore){
